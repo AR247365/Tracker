@@ -1,10 +1,16 @@
-import React from "react"
-import { FormRow } from "../../components"
+import React, { useEffect } from "react"
+import { FormRow, FormRowSelect } from "../../components"
 import Wrapper from "../../assets/wrappers/DashboardFormPage"
 import { useSelector, useDispatch } from "react-redux"
 import { toast } from "react-toastify"
-
+import {
+  clearValues,
+  handleChange,
+  createJob,
+} from "../../features/job/jobSlice"
 const AddJob = () => {
+  const { user } = useSelector((store) => store.user)
+
   const {
     isLoading,
     position,
@@ -25,14 +31,22 @@ const AddJob = () => {
       toast.error("Please Fill Out All Fields")
       return
     }
+    dispatch(createJob({ position, company, jobLocation, jobType, status }))
   }
 
   const handleJobInput = (e) => {
     const name = e.target.name
     const value = e.target.value
-    console.log(name, value)
+    dispatch(handleChange({ name, value }))
   }
-
+  useEffect(() => {
+    dispatch(
+      handleChange({
+        name: "jobLocation",
+        value: user.location,
+      })
+    )
+  }, [])
   return (
     <Wrapper>
       <form className="form">
@@ -62,15 +76,26 @@ const AddJob = () => {
             handleChange={handleJobInput}
           />
           {/* job status */}
-
+          <FormRowSelect
+            name="status"
+            value={status}
+            handleChange={handleJobInput}
+            list={statusOptions}
+          />
           {/* job type */}
-
+          <FormRowSelect
+            name="jobType"
+            labelText="job type"
+            value={jobType}
+            handleChange={handleJobInput}
+            list={jobTypeOptions}
+          />
           {/* btn container */}
           <div className="btn-container">
             <button
               type="button"
               className="btn btn-block clear-btn"
-              onClick={() => console.log("clear values")}
+              onClick={() => dispatch(clearValues())}
             >
               clear
             </button>
